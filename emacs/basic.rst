@@ -5,7 +5,7 @@
 指令
 =========================
 *   Ctr = C
-*   ESC = ESC | Meta鍵(alt or ESC)
+*   ESC = ESC | Meta鍵(alt or ESC) == C-[
 *   C-g	      		中斷指令
    
 
