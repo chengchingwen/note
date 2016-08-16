@@ -16,7 +16,7 @@ Indation
 .. code-block::
 
    TAB			對齊
-   ESC-C-\		對指定區塊一次對齊
+   ESC-C-\	        對指定區塊一次對齊
    ESC-m		游標移到對齊
    ESC-C-o		產生一行
 
@@ -144,6 +144,9 @@ Indation
    C-x 2		新視窗(橫向)
    C-x 3		新視窗(縱向)
    C-X 0		關閉當前視窗
+   C-x {                放大視窗(向左)
+   C-x }                放大視窗(向右)
+   C-x ^                放大視窗(向上)
    C-x o		切換視窗
    C-x C-f + </PATH>	開啟檔案
    C-x C-v   		開啟其他檔案
@@ -174,6 +177,7 @@ Shell
 
 .. code-block::  
 
+   ESC-!                shell command
    ESC-x shell		開啟shell
    <shell特殊指令>
    C-c C-c		中斷
