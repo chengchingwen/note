@@ -9,7 +9,7 @@
 *   C-g	      		中斷指令
    
 
-Indation
+Indentation
 =========================
 指令
 
