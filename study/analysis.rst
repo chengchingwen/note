@@ -12,7 +12,9 @@ heine-borel covering theorem
 theorem 3.33
 theorem 3.34
 
+4.18 example 3: why it  is connected  
 
+theorem 6.2
 
 
 uniformly continuous

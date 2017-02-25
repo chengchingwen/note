@@ -1,0 +1,19 @@
+* Command Lisp 
+  
+** Questions
+*** different between `set`, `setq`, and `setf`
+    
+    Reference: [[http://stackoverflow.com/questions/869529/difference-between-set-setq-and-setf-in-common-lisp][Reference]]
+    
+    + set: 
+      the original keyword for setting value
+
+
+    + setq:
+      set Quote, set value for symbols
+      
+
+    + setf:
+      set Field, set value to a destination.
+      for example, a attribute of a class or one value of a struct 
+

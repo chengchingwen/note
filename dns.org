@@ -1,0 +1,139 @@
+* DNS 
+** ZONE v.s. Delegation
+*** zone 
+    a groups of domain that one takes in charge
+*** delegation 
+    a action that a domain give the authorization to its subdomain, so the domains under the subdomain was not in it's 
+    zone anymore and meanwhile formed a new zone of the subdomain.
+
+** host v.s. (sub)domain
+*** host 
+    an actual computer 
+*** (sub)domain 
+    a way that divide the parent domain
+
+** zone file & record 
+*** zone file 
+    text file that keep the infomation about mappings between domain names and IP addresses. 
+    reside in name server.
+**** parameters
+     - =$ORIGIN= : a parameter stands for the zone's highest level of authority. 
+                   configured at the top of the zone file. 
+                   describes what the zone is going to be authoritative for.
+       #+BEGIN_QUOTE
+       for example: if a zone file is used to configure the "example.com." domain, the =$ORIGIN= would 
+       be set to =example.com.=.
+       #+END_QUOTE
+     - =$TTL("time to live")= : time of the previous cache can be use to answer a query.
+
+*** Record 
+    within zone file. a form of mappings.
+**** Record types
+***** SOA records(start of authority)
+      mandatory record in all zone files. 
+      #+BEGIN_EXAMPLE
+      example:
+      domain.com.  IN SOA ns1.domain.com. admin.domain.com. (
+                                            12083   ; serial number
+                                            3h      ; refresh interval
+                                            30m     ; retry interval
+                                            3w      ; expiry period
+                                            1h      ; negative TTL
+					    )
+      #+END_EXAMPLE
+      - =domain.com.= : root of the zone. usually use =@= for =$ORIGIN=
+      - =IN= : internet 
+      - =SOA= : type of record
+      - =ns1.domain.com.= : primary master name server for this domain.
+      - =admin.domain.com.= :  the email address of the administrator for this zone.
+	#+BEGIN_EXAMPLE
+	special format:
+	admin.domain.com. == admin@domain.com.
+	peter/wtf/admin.domain.com. == peter.wtf.admin@domain.com.
+	#+END_EXAMPLE
+      - serial number : for slave to check whether its zone file is older than the master's.
+	                should be increment this number everytime the master's zone file being edited.
+      - refresh interval : times for slave polling the master's zone file changes.
+      - retry interval : times for slave to wait for retry if it cannot connect to the master.
+      - expiry period : times for master to removed a slave as authoritative source if the slave didn't contact the
+	                master for this period of time.
+      - negative TTL : TTL for caching a name error.
+
+***** A & AAAA records
+      map host into IP address
+      - A for IPv4
+      - AAAA for IPv6
+
+      #+BEGIN_EXAMPLE
+      general format:
+      host     IN      A       IPv4_address
+      host     IN      AAAA    IPv6_address
+
+      for example:
+      ns1      IN      A       111.222.111.222
+      
+      > notice that if the host was not in the FQDN format, then it will be fill in the rest with the $ORIGIN value.
+      that is:
+      ns1.domain.com.      IN      A       111.222.111.222
+
+      > esolving anything that under this domain that is not defined explicitly to this server. with the "*" wild card.
+      *       IN  A       222.222.222.222
+
+      #+END_EXAMPLE
+      
+***** CNAME records
+      define an alias for canonical name for your server (one defined by an A or AAAA record).
+      #+BEGIN_EXAMPLE
+      server1     IN  A       111.111.111.111
+      www         IN  CNAME   server1
+      #+END_EXAMPLE
+      causing perfomance losses.
+      CNAME is recommended to provide an alias for a resource outside of the current zone.
+
+***** MX records 
+       define the mail exchanges that are used for the domain. 
+       Unlike many other record types, mail records generally don't map a host to something, 
+       because they apply to the entire zone. As such, they usually look like this:
+       #+BEGIN_EXAMPLE
+               IN  MX  10   mail.domain.com. ; no host name at beginning.
+       #+END_EXAMPLE
+       - =10= after =MX= is the preference number if there are multiple mail server.
+	 Lower number have higher priority.
+
+       - =mail.domain.com.=  can't be define by CNAME
+
+       #+BEGIN_EXAMPLE
+            IN  MX  10  mail1
+            IN  MX  50  mail2
+       mail1   IN  A       111.111.111.111
+       mail2   IN  A       222.222.222.222
+       #+END_EXAMPLE
+       
+***** NS records
+      defines the name servers that are used for this zone.
+      #+BEGIN_EXAMPLE
+            IN  NS     ns1.domain.com.
+            IN  NS     ns2.domain.com.
+      ns1     IN  A      111.222.111.111
+      ns2     IN  A      123.211.111.233
+      #+END_EXAMPLE
+      should have at least two name servers defined in each zone file in order to operate correctly.
+
+***** PTR records
+      inverse of an A or AAAA record.
+      #+BEGIN_EXAMPLE
+      PTR record for 111.222.333.444:
+      444.333.222.111.in-addr.arpa.   33692   IN  PTR host.example.com.
+      #+END_EXAMPLE
+
+
+
+
+* things are not going to cover
+  [[https://howdns.works/][dns tree structure]] (cute explanation)
+
+* Reference
+  [[https://www.digitalocean.com/community/tutorials/an-introduction-to-dns-terminology-components-and-concepts][Tutorial on DigitalOcean]] (quite clear)
+
+
+

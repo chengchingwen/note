@@ -1,0 +1,22 @@
+
+
+* 中文輸入
+** tcsh
+modify /etc/csh.cshrc
+and add following
+
+#+BEGIN_SRC sh
+  setenv LC_CTYPE en_US.ISO8859-1
+  setenv LC_ALL zh_TW.UTF-8
+  setenv LANG zh_TW.UTF-8 
+#+END_SRC
+
+** bash
+modify /etc/profile
+and add following
+
+#+BEGIN_SRC sh
+export LC_CTYPE=en_US.ISO8859-1
+export LC_ALL=zh_TW.UTF-8
+export LANG=zh_TW.UTF-8
+#+END_SRC

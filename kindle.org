@@ -1,0 +1,62 @@
+* Jailbreak kindle
+  make sure your kindle is jailbreakable  
+  Reference: 1. https://www.mobileread.com/forums/showthread.php?t=275877
+             2. http://www.ereader-palace.com/how-to-jailbreak-kindle-paperwhite-23-and-kindle-voyage-2016-method/
+             3. http://lifehacker.com/how-to-jailbreak-your-kindle-1783864074
+
+** Steps
+*** reset your kindle 
+    at setting, reset your kindle will remove all the content in your device.
+    after reset, register your amazon account and turn on the airplan mode.
+
+*** factorial downgrade your kindle 
+    download the factory firmware image of your kindle ( see the model of your kindle )
+    mount your kindle to the computer and you would only see a "document" folder in the root directory.
+    put the firmware image into the root dir ( beside the document folder ) and savely eject kindle.
+    at setting, push update your kindle the downgrade it.
+    it might take a little moment, wait for it.
+    
+*** jailbreak
+    Reference: [[https://www.mobileread.com/forums/showthread.php?t%3D275887][Reference]]
+
+    download the jailbreak file ( _main-htmlviewer.tar.gz_ *note*: do not unzip it )
+    put it into the root dir and savely eject kindle.
+    at kindle's search bar, type ";installHtml" and hit enter.
+    if your kindle automatically restart and there is a new book named "You are Jailbroken", then your are done.
+    if not, check previous step and make sure everything is fine.
+
+*** make jailbreak lasting
+    Reference: [[https://www.mobileread.com/forums/showthread.php?p%3D3004892&postcount%3D1597][Reference]]
+
+    downlad the hotfix file ( *Update_jailbreak_hotfix_1.14.N_install.bin* it might be with different number )
+    put it into the root dir and savely eject kindle.
+    at setting, push update your knidle to insstall the hotfix
+
+*** upgrade 
+    after all of the above, now you can update your kindle to the latest firmware
+
+* install application
+  Reference: [[http://www.ereader-palace.com/4-must-have-plugins-to-install-after-jailbreaking-kindle/#mrpi][Reference]]
+             [[https://wiki.mobileread.com/wiki/Kindle_Hacks_Information#Kite][things you can do]]
+	     [[https://github.com/wdv4758h/notes/blob/master/hardware/kindle.rst][tutorial]]
+
+** KUAL
+   Reference: [[https://www.mobileread.com/forums/showthread.php?t%3D203326][Reference]]
+
+** mrinstaller 
+   Reference: [[https://www.mobileread.com/forums/showthread.php?t%3D251143][Reference]]
+
+*** usbnet
+    Reference: [[https://www.mobileread.com/forums/showthread.php?t%3D201572][Reference]]
+
+*** kterm
+    
+*** screensaver
+    Reference: 
+
+    at the beginning, you need to make sure your kindle is without special offer.
+    your can google for it for a bounch of solution,
+    or [[https://www.binaryspawn.com/4/][remove it on your own]].
+
+    after it 
+*** 
