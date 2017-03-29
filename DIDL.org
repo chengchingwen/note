@@ -1,0 +1,168 @@
+#+TITLE: Dive into Deep Learning note
+#+DATE: 2017/03/26（日）09:20
+#+AUTHOR: 鄭景文
+#+EMAIL: chengchingwen@zhengjiwendeMBP
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
+#+OPTIONS: author:t c:nil creator:comment d:(not "LOGBOOK") date:t
+#+OPTIONS: e:t email:nil f:t inline:t num:t p:nil pri:nil stat:t
+#+OPTIONS: tags:t tasks:t tex:t timestamp:t toc:nil todo:t |:t
+#+CREATOR: Emacs 25.1.1 (Org mode 8.2.10)
+#+DESCRIPTION: a talk on taiwan data science conference
+#+EXCLUDE_TAGS: noexport
+#+KEYWORDS:
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+
+* Introduction
+** machine learning
+*** regression
+output of function is a "scalar"
+
+a more complex model is a super set of a simple model
+
+*** classification 
+**** binary 
+output yes/no
+
+**** multi-class
+output multiple tags
+
+** deep learning
+production line
+
+*** special net
+**** residual Net
+have special structure 
+
+pass input feature (or previous feature) directory to later layer
+
+
+* variants of net
+** CNN
+a neuron doesn't have to see the hole picture
+
+subsamoling the pixels will not change the object
+
+
+local connectivity : parameter sharing
+
+convolution layers can use multiple method to compress data and create depth, or multiple depth feature create one feature layer
+
+#+BEGIN_SRC dot :file didl_cnn.png :result
+graph {
+ splines=line;
+ rankdir=LR;
+ { a1, a2 ,a3 } -- { b1, b2 } [color = red];
+ { a1, a2 ,a3 } -- { c1, c2 } [color = blue];
+ {rank=min;a1;a2;a3;}
+ {rank=same;b1;b2;}
+ {rank=sink;c1;c2;}
+}
+
+#+END_SRC
+
+#+RESULTS:
+[[file:didl_cnn.png]]
+
+use gradient ascent to visualize layer
+
+** RNN
+rough error surface 
+
+*** add attention 
+can help us know where NN is focus on (what NN "see" in the progress)
+
+*** hop 
+
+*** neural turing machine
+
+* beyond supervise
+
+** semi-supervised 
+have labelled and unlabelled data, ex labelled cats and unlabelled cats
+
+use data distribution to find out the labelled
+
+** transfer learning
+labelled data and labelled data with different task, for example
+labelled cat and dogs and labelled tiger and elephent
+
+widely use in image processing
+ 
+you don't need to learn some texture again
+
+** unsupervised
+unlabelled and different task data with labelled data
+
+try to find latent factors 
+
+*** autoencoder
+use NN to find a encoding method ( like PCA )
+
+#+BEGIN_EXAMPLE
+pic => NN encoder => code
+         ^
+         | learn together
+         v 
+code => NN decoder => pic
+        
+
+
+      x     encode       decode   y
+===> pic      =>      a    =>    pic
+             (bottleneck layer)
+#+END_EXAMPLE
+
+can also add noise to learn denoise
+
+text retrieval
+
+compress data
+
+pre-training 
+
+*** generative modal
+**** PixelRNN
+use previous pixel to generate next pixel
+
+**** Generatice Adversarial Network
+try to understand adn explain the underlying structure
+
+think about the decoder from autoencoder as generator
+
+(discriminator: only tell yes or other)
+
+generator generate sample from noise,
+discriminator tell data is from data sample or not,
+train together 
+
+
+ 
+** reinforcement learning
+action & reward
+
+*** policy based
+π(s) for policy at state s
+
+*** value based
+value function 
+try to get higher value 
+Q_π(s) value base on policy π at state s
+
+*** model based
+build a model for the environment
+
+*** Q-learning 
+build a lookup table (NN function) and learning it 
+to find max value
+
+**** stable solution for DQN
+
+- experience replay
+ + learn from all past policies
+- freeze target Q-network
+- clip reward
+
+*** deep polocy network
+represent policy 
+*** actor-critic
