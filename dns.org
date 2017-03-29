@@ -1,4 +1,4 @@
-* DNS 
+* DNS Concept 
 ** ZONE v.s. Delegation
 *** zone 
     a groups of domain that one takes in charge
@@ -103,8 +103,8 @@
        - =mail.domain.com.=  can't be define by CNAME
 
        #+BEGIN_EXAMPLE
-            IN  MX  10  mail1
-            IN  MX  50  mail2
+               IN  MX  10  mail1
+               IN  MX  50  mail2
        mail1   IN  A       111.111.111.111
        mail2   IN  A       222.222.222.222
        #+END_EXAMPLE
@@ -112,13 +112,13 @@
 ***** NS records
       defines the name servers that are used for this zone.
       #+BEGIN_EXAMPLE
-            IN  NS     ns1.domain.com.
-            IN  NS     ns2.domain.com.
+              IN  NS     ns1.domain.com.
+              IN  NS     ns2.domain.com.
       ns1     IN  A      111.222.111.111
       ns2     IN  A      123.211.111.233
       #+END_EXAMPLE
       should have at least two name servers defined in each zone file in order to operate correctly.
-
+      
 ***** PTR records
       inverse of an A or AAAA record.
       #+BEGIN_EXAMPLE
@@ -127,13 +127,131 @@
       #+END_EXAMPLE
 
 
-
-
-* things are not going to cover
+** things are not going to cover
   [[https://howdns.works/][dns tree structure]] (cute explanation)
 
-* Reference
+** Reference
   [[https://www.digitalocean.com/community/tutorials/an-introduction-to-dns-terminology-components-and-concepts][Tutorial on DigitalOcean]] (quite clear)
 
 
 
+  
+
+* FreeBSD DNS server
+** Unbound v.s. BIND
+   [[https://forums.freebsd.org/threads/53924/][reference]] : we need BIND
+   [[https://www.digitalocean.com/community/tutorials/how-to-set-up-the-unbound-caching-dns-resolver-on-freebsd-10-1][unbound digitalocean tutor]]
+
+** setting
+*** Reference
+
+
+    [[http://wiki.weithenn.org/cgi-bin/wiki.pl?Bind9-提供_Domain_Name_與_IP_對應的服務][bind]]9 : bind setting
+    [[https://abdussamad.com/archives/525-How-to-use-free-dns.he.net-for-slave-DNS-nameserver-hosting.html][slave.he.net]] : use dns.he.net for slave dns nameserver hosting
+    [[ftp://217.147.231.57/Cours/Reseaux/dns%20and%20bind%205th%20edition.pdf][DNS and BIND, 5th Edition]] : dns book
+    [[https://en.wikipedia.org/wiki/List_of_DNS_record_types][wiki_record]] : wiki dns record types
+    [[https://en.wikipedia.org/wiki/Reverse_DNS_lookup][reverse dns lookup]]
+    [[https://www.digitalocean.com/community/questions/how-can-i-setup-a-ptr-record-if-i-am-not-using-digital-ocean-s-dns][digitalocean reverse ns setting]]
+    [[http://linux.vbird.org/linux_server/0350dns.php][鳥哥]]
+    [[http://blog.hmes.kh.edu.tw/wordpress/jang/2010/04/22/ipv6-dns-server修正與設定/][ipv6 setting]] & [[http://blog.hmes.kh.edu.tw/wordpress/jang/2010/04/23/ipv6-dns-功能檢測/][ipv6 checking]]
+    [[http://www.tldp.org/HOWTO/DNS-HOWTO.html#toc5][DNS howto]] : bind document
+    [[https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/network-dns.html][freebsd handbook]]
+    [[https://tnlin.wordpress.com/2015/05/26/na-dns-server-with-bind910/][tnlin note]]
+    [[http://dottoping.logdown.com/logfile/175043-freebsd-set-up-dns][dns setting (chinese)]] : [[http://mail.lsps.tp.edu.tw/~gsyan/freebsd2001/dns.html][2]] [[https://www.twbsd.org/cht/book/ch22.htm][3]]
+
+    
+    [[https://wiki.gandi.net/en/domains/management/using-gandi-dns][gandi setting]] : domain provider [[https://wiki.gandi.net/en/domains/management][2]] ([[https://free.com.tw/gandi-net/][chinese]])
+    
+    [[https://www.digitalocean.com/community/tutorials/how-to-use-traceroute-and-mtr-to-diagnose-network-issues][digitalocean traceroute tutor]]
+
+    [[https://forums.freebsd.org/threads/59348/][freebsd11 + bind911 error]] : [[https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=217288][mailing list]]
+
+    [[https://www.digitalocean.com/community/tutorials/recommended-steps-for-new-freebsd-10-1-servers]]
+    [[https://www.digitalocean.com/community/tutorials/technical-recommendations-and-best-practices-for-digitalocean-s-tutorials][digitalocean]]
+    [[https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets][digitalocean ssh key]]
+*** before start
+    =nc -z (-u) domain 53= : check 3-way handshake
+*** installation
+   #+BEGIN_SRC sh
+   pkg install bind911
+   #+END_SRC
+  
+*** named
+    in =/etc/rc.conf=:
+    #+BEGIN_SRC sh
+    named_enable="YES"
+    #+END_SRC
+
+    modify =/usr/local/etc/namedb/named.conf=
+
+**** named.conf
+     
+***** Address Match List
+      First match.
+
+      #+BEGIN_EXAMPLE
+      { 168.95/16; 140.113.209/24; };
+      { !1.2.3.4; 1.2.3/24; }; # ! for not matching
+      #+END_EXAMPLE
+
+***** include
+      separate configure file or cryptographic keys(into a restricted permission file)
+
+      #+BEGIN_EXAMPLE 
+      include "/usr/local/etc/namedb/rndc.key";
+      #+END_EXAMPLE
+
+***** acl
+      
+      #+BEGIN_EXAMPLE
+      acl acl_name {
+          address;
+      };
+      #+END_EXAMPLE
+
+***** option
+****** listen-on port ip_port address_match_list;
+       NIC & port listened for query
+****** forwarders { id_addr; };
+       Forward DNS query if no cache
+****** allow-transfer address_match_list;
+       who can request zone transfer 
+****** blackhole address_match_list;
+       reject everything
+***** zone 
+      #+BEGIN_EXAMPLE
+      zone "donain_name" {
+          type master | slave | stub;
+	  file "path";
+	  masters { ip_addrs; };
+	  allow_query { ip_addrs; };
+	  allow_transfer { ip_addrs; };
+	  allow-update { ip_addrs; }; ;;==> who can update your record
+      };
+
+      zone "cs.nctu.edu.tw" IN {
+          type master;
+          file "named.hosts";
+          allow-transfer { localhost; CS-DNS-Server; };
+      };
+
+      zone "cs.nctu.edu.tw" IN {
+          type slave;
+          file "cs.hosts";
+          masters { 140.113.235.107; }; ;;竟量寫 ip 
+          allow-transfer { localhost; CS-DNS-Server; };
+      };
+      
+      zone "235.113.140.in-addr.arpa" IN {
+          type master;
+          file "named.235.rev";
+          allow-transfer { localhost; CS-DNS-Server; };
+      };
+
+      #+END_EXAMPLE
+
+      
+***** logging 
+      #+BEGIN_EXAMPLE
+      logging {
+        channel 
