@@ -48,7 +48,9 @@
 
 *** usbnet
     Reference: [[https://www.mobileread.com/forums/showthread.php?t%3D201572][Reference]]
-
+    set your computer ip to 192.168.15.1
+    and ssh root@192.168.15.244
+    not passwd
 *** kterm
     
 *** screensaver
