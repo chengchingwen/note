@@ -1,0 +1,254 @@
+* Build Tensorflow 1.10 from source with Cuda 9.2, cuDNN 7.2.1, NCCL 2.2.13 and MKL support
+** System 
+   the OS is =ubuntu 18.04 desktop= with =Geforce GTX 1080ti= GPU and =intel i7-7800X= CPU
+
+** install basic dependency
+   install basic dependency. 
+   we also install =jemalloc= for tensorflow
+
+#+BEGIN_SRC sh
+sudo apt install build-essential git zip unzip cmake pkg-config g++ zlib1g-dev curl
+sudo apt install libjemalloc1 libjemalloc-dev
+sudo apt install libomp-dev
+sudo apt-get install libcupti-dev
+echo 'export LD_LIBRARY_PATH=/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+#+END_SRC
+   
+** install intel MKL 
+   get the newest MKL version from official website, 
+   untar the tar and install with the install script (
+   follow the instruction)
+#+BEGIN_SRC 
+wget http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/13575/l_mkl_2019.0.117.tgz
+tar -xvzf l_mkl_2019.0.117.tgz #the intel tar file
+cd l_mkl_2019.0.117/
+./install.sh 
+#+END_SRC
+
+** install Python3.6
+   we will install the build tensorflow in the virtual environment 
+   create by the build-in venv module for a minimal installation
+
+#+BEGIN_SRC sh
+sudo apt install python3 python3-dev python3-venv python3-numpy python3-wheel
+python -m venv pyenv
+. pyenv/bin/activate
+pip install wheel numpy
+#+END_SRC
+
+** install cuda 9.2
+   download cuda 9.2 from the official website (I use network version for convenience) 
+   *notice*: do not install nvidia driver beforehand since 
+   cuda 9.2 require =nvidia-driver-396=
+
+#+BEGIN_SRC sh
+sudo dpkg -i cuda-repo-ubuntu1710_9.2.148-1_amd64.deb
+sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1710/x86_64/7fa2af80.pub
+sudo apt-get update      
+sudo apt-get install cuda nvidia-settings nvidia-modprobe
+#+END_SRC
+
+   if you install =nvidia-390= driver beforehand, 
+   you may encounter some error while install cuda. 
+   the workaround is
+
+#+BEGIN_SRC sh
+sudo dpkg -i --force-overwrite /var/cache/apt/archives/nvidia-396_396.44-0ubuntu1_amd64.deb
+sudo apt autoremove
+sudo apt update      
+sudo apt upgrade     
+sudo apt install cuda
+#+END_SRC
+
+   after install driver and cuda, reboot the PC
+
+#+BEGIN_SRC sh
+sudo reboot
+#+END_SRC
+
+   checking the installation 
+
+#+BEGIN_SRC sh
+nvidia-smi
+nvcc -V
+#+END_SRC
+
+   then =export= the require path.
+
+#+BEGIN_SRC sh
+echo 'export PATH=/usr/local/cuda-9.2/bin${PATH:+:${PATH}}' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/usr/local/cuda-9.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}' >> ~/.bashrc
+. .bashrc 
+#+END_SRC
+
+** install cuDNN 7.2.1
+   download cuDNN 7.2.1 from official website, 
+   untar the tar file and copy it to the correct directory.
+
+#+BEGIN_SRC sh
+tar -xvzf cudnn-9.2-linux-x64-v7.2.1.38.tgz 
+sudo cp -R cuda/include/* /usr/local/cuda-9.2/include
+sudo cp -R cuda/lib64/* /usr/local/cuda-9.2/lib64
+#+END_SRC
+
+** install NCCL 2.2.13
+   download NCCL from the official website, install 
+   and make link in cuda folder (for tensorflow configuration)
+
+#+BEGIN_SRC sh
+sudo dpkg -i nccl-repo-ubuntu1604-2.2.13-ga-cuda9.2_1-1_amd64.deb 
+sudo apt update
+sudo apt install libnccl2=2.2.13-1+cuda9.2 libnccl-dev=2.2.13-1+cuda9.2
+sudo ln -s /usr/lib/x86_64-linux-gnu/libnccl.so /usr/local/cuda/targets/x86_64-linux/lib/libnccl.so            
+sudo ln -s /usr/lib/x86_64-linux-gnu/libnccl.so.2 /usr/local/cuda/targets/x86_64-linux/lib/libnccl.so.2        
+sudo ln -s /usr/lib/x86_64-linux-gnu/libnccl.so.2.2.13 /usr/local/cuda/targets/x86_64-linux/lib/libnccl.so.2.2.
+sudo ln -s /usr/lib/x86_64-linux-gnu/libnccl_static.a /usr/local/cuda/targets/x86_64-linux/lib/libnccl_static.a
+sudo ln -s /usr/include/nccl.h /usr/local/cuda/targets/x86_64-linux/include/nccl.h
+#+END_SRC
+
+   you can also download the tar file and put it in the correct place
+
+#+BEGIN_SRC sh
+tar -xvJf  nccl_2.2.13-1+cuda9.2_x86_64.txz 
+cd nccl_2.2.13-1+cuda9.2_x86_64
+cp -R lib/* /usr/local/cuda/targets/x86_64-linux/lib/
+cp -R include/* /usr/local/cuda/targets/x86_64-linux/include/
+#+END_SRC
+
+** install bazel 
+   the install script has some problem, so we use the bazel apt repo
+
+#+BEGIN_SRC sh
+sudo apt-get install openjdk-8-jdk
+echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
+sudo apt update && sudo apt install bazel
+#+END_SRC
+** get tensorflow source && Build!
+   clone the tensorflow source and checkout to =r1.10=
+
+#+BEGIN_SRC 
+git clone https://github.com/tensorflow/tensorflow && cd tensorflow
+./configure
+#+END_SRC
+
+   the configure should be like this
+
+#+BEGIN_EXAMPLE
+WARNING: --batch mode is deprecated. Please instead explicitly shut down your Bazel server using the command "bazel shutdown".
+You have bazel 0.16.1 installed.
+Please specify the location of python. [Default is /home/peter/pyenv/bin/python]: 
+
+
+Found possible Python library paths:
+  /home/peter/pyenv/lib/python3.6/site-packages
+Please input the desired Python library path to use.  Default is [/home/peter/pyenv/lib/python3.6/site-packages]
+
+Do you wish to build TensorFlow with jemalloc as malloc support? [Y/n]: Y
+jemalloc as malloc support will be enabled for TensorFlow.
+
+Do you wish to build TensorFlow with Google Cloud Platform support? [Y/n]: n
+No Google Cloud Platform support will be enabled for TensorFlow.
+
+Do you wish to build TensorFlow with Hadoop File System support? [Y/n]: n
+No Hadoop File System support will be enabled for TensorFlow.
+
+Do you wish to build TensorFlow with Amazon AWS Platform support? [Y/n]: n
+No Amazon AWS Platform support will be enabled for TensorFlow.
+
+Do you wish to build TensorFlow with Apache Kafka Platform support? [Y/n]: n
+No Apache Kafka Platform support will be enabled for TensorFlow.
+
+Do you wish to build TensorFlow with XLA JIT support? [y/N]: 
+No XLA JIT support will be enabled for TensorFlow.
+
+Do you wish to build TensorFlow with GDR support? [y/N]: 
+No GDR support will be enabled for TensorFlow.
+
+Do you wish to build TensorFlow with VERBS support? [y/N]: 
+No VERBS support will be enabled for TensorFlow.
+
+Do you wish to build TensorFlow with OpenCL SYCL support? [y/N]: 
+No OpenCL SYCL support will be enabled for TensorFlow.
+
+Do you wish to build TensorFlow with CUDA support? [y/N]: y
+CUDA support will be enabled for TensorFlow.
+
+Please specify the CUDA SDK version you want to use. [Leave empty to default to CUDA 9.0]: 9.2
+
+
+Please specify the location where CUDA 9.2 toolkit is installed. Refer to README.md for more details. [Default is /usr/local/cuda]: 
+
+
+Please specify the cuDNN version you want to use. [Leave empty to default to cuDNN 7.0]: 7.2
+
+
+Please specify the location where cuDNN 7 library is installed. Refer to README.md for more details. [Default is /usr/local/cuda]:
+
+
+Do you wish to build TensorFlow with TensorRT support? [y/N]: 
+No TensorRT support will be enabled for TensorFlow.
+
+Please specify the NCCL version you want to use. If NCCL 2.2 is not installed, then you can use version 1.3 that can be fetched automatically but it may have worse performance with multiple GPUs. [Default is 2.2]: 
+
+
+Please specify the location where NCCL 2 library is installed. Refer to README.md for more details. [Default is /usr/local/cuda]:/usr/local/cuda/targets/x86_64-linux/
+
+
+Please specify a list of comma-separated Cuda compute capabilities you want to build with.
+You can find the compute capability of your device at: https://developer.nvidia.com/cuda-gpus.
+Please note that each additional compute capability significantly increases your build time and binary size. [Default is: 6.1]
+
+
+Do you want to use clang as CUDA compiler? [y/N]: 
+nvcc will be used as CUDA compiler.
+
+Please specify which gcc should be used by nvcc as the host compiler. [Default is /usr/bin/gcc]: 
+
+
+Do you wish to build TensorFlow with MPI support? [y/N]: 
+No MPI support will be enabled for TensorFlow.
+
+Please specify optimization flags to use during compilation when bazel option "--config=opt" is specified [Default is -march=native]: 
+
+
+Would you like to interactively configure ./WORKSPACE for Android builds? [y/N]: 
+Not configuring the WORKSPACE for Android builds.
+
+Preconfigured Bazel build configs. You can use any of the below by adding "--config=<>" to your build command. See tools/bazel.rc for more details.
+	--config=mkl         	# Build with MKL support.
+	--config=monolithic  	# Config for mostly static monolithic build.
+Configuration finished
+#+END_EXAMPLE
+
+   then build/compile the package
+
+#+BEGIN_SRC sh
+bazel build --config=opt --config=mkl //tensorflow/tools/pip_package:build_pip_package
+bazel-bin/tensorflow/tools/pip_package/build_pip_package ~/ #to the specific folder, I use home dir
+#+END_SRC
+
+   then we can install the pip package to our environment
+
+#+BEGIN_SRC sh
+pip install --no-cache-dir tensorflow-1.10.1-cp36-cp36m-linux_x86_64.whl 
+#+END_SRC
+
+   then it should works!
+
+#+BEGIN_SRC python
+import tensorflow as tf
+sess = tf.Session()
+print('Sucess!!')
+#+END_SRC
+
+** Reference
+   [[https://github.com/yaroslavvb/tensorflow-community-wheels/issues/73]]
+   [[http://www.python36.com/how-to-install-tensorflow-gpu-with-cuda-9-2-for-python-on-ubuntu/2/]]
+   [[https://docs.bazel.build/versions/master/install-ubuntu.html][bazel]]
+   [[https://devtalk.nvidia.com/default/topic/1038392/nvidia-390-driver-error-during-installation-on-ubuntu-18-04/][driver issue]]
+   [[https://www.tensorflow.org/install/install_linux#tensorflow_gpu_support][tf official]]
+   [[https://medium.com/@omar.merghany95/how-to-install-tensorflow-gpu-with-cuda-toolkit-9-0-and-cudnn-7-2-1-on-aws-ec2-ubuntu-16-04-c46b469a7358]]
+   [[https://medium.com/@zhanwenchen/speed-up-learning-by-building-tensorflow-gpu-from-source-on-ubuntu-d03bb4e06b23]]
+   [[https://medium.com/@zhanwenchen/install-cuda-and-cudnn-for-tensorflow-gpu-on-ubuntu-79306e4ac04e]]
+   [[https://www.pugetsystems.com/labs/hpc/How-to-install-CUDA-9-2-on-Ubuntu-18-04-1184/#step-2-get-the-right-nvidia-driver-installed]]
