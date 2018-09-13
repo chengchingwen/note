@@ -244,11 +244,27 @@ print('Sucess!!')
 
 ** Reference
    [[https://github.com/yaroslavvb/tensorflow-community-wheels/issues/73]]
+
+
    [[http://www.python36.com/how-to-install-tensorflow-gpu-with-cuda-9-2-for-python-on-ubuntu/2/]]
+
+
    [[https://docs.bazel.build/versions/master/install-ubuntu.html][bazel]]
+
+
    [[https://devtalk.nvidia.com/default/topic/1038392/nvidia-390-driver-error-during-installation-on-ubuntu-18-04/][driver issue]]
+
+
    [[https://www.tensorflow.org/install/install_linux#tensorflow_gpu_support][tf official]]
+
+
    [[https://medium.com/@omar.merghany95/how-to-install-tensorflow-gpu-with-cuda-toolkit-9-0-and-cudnn-7-2-1-on-aws-ec2-ubuntu-16-04-c46b469a7358]]
+
+
    [[https://medium.com/@zhanwenchen/speed-up-learning-by-building-tensorflow-gpu-from-source-on-ubuntu-d03bb4e06b23]]
+
+
    [[https://medium.com/@zhanwenchen/install-cuda-and-cudnn-for-tensorflow-gpu-on-ubuntu-79306e4ac04e]]
+
+
    [[https://www.pugetsystems.com/labs/hpc/How-to-install-CUDA-9-2-on-Ubuntu-18-04-1184/#step-2-get-the-right-nvidia-driver-installed]]
