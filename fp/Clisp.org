@@ -1,4 +1,4 @@
-* Command Lisp 
+* Common Lisp 
   
 ** Questions
 *** different between `set`, `setq`, and `setf`
