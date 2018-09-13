@@ -130,6 +130,7 @@ sudo apt update && sudo apt install bazel
 
 #+BEGIN_SRC 
 git clone https://github.com/tensorflow/tensorflow && cd tensorflow
+git checkout r1.10
 ./configure
 #+END_SRC
 
